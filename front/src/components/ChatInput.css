@@ -1,0 +1,14 @@
+.chat_input_box {
+  position: relative;
+  width: 100%;
+  top: 80%;
+}
+
+.chat_input {
+  width: 100%;
+  height: 60px;
+  border: none;
+  border-radius: 16px;
+  font-size: 16px;
+  padding-left: 8px;
+}
