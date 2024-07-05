@@ -9,6 +9,7 @@ export default function ChatInput({ handleSubmit }: { handleSubmit: (message: st
       onSubmit={(event) => {
         event.preventDefault();
         handleSubmit(inputValue);
+        setInputValue('');
       }}
     >
       <input
