@@ -1,7 +1,7 @@
 .chat_input_box {
   position: relative;
   width: 100%;
-  top: 80%;
+  top: 64vh;
 }
 
 .chat_input {
