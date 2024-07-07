@@ -10,25 +10,30 @@ REDIS_PORT = 6379
 REDIS_HOST = 'localhost'
 REDIS_CHANNEL = "chat"
 count=0
-clients = []
+clients = {}
 
-async def handle_message(ws,user_id,redis_client,clients):
+async def handle_receive_message(ws,redis_client):
     async for msg in ws:
         if msg.type == aiohttp.WSMsgType.TEXT:
             data = json.loads(msg.data)
             content = data.get("content")
-        for client in clients:
-            if not client.closed:
-                await client.send_str(
-                    json.dumps(
-                        {
-                            "username": "sender~",
-                            "content": content,
-                        }
-                    )
-                )
-            else:
-                clients.remove(client)
+            user_id = data.get("user_id")
+            await redis_client.publish(REDIS_CHANNEL, json.dumps({"user_id": user_id, "content": content}))
+
+
+async def handle_send_message(clients,pubsub):
+        while True:
+            try:
+                message = await pubsub.get_message(ignore_subscribe_messages=True)
+                if message is not None:
+                    message_data = json.loads(message["data"].decode())
+                    user_id = message_data["user_id"]
+                    content = message_data["content"]
+                    for ws in clients.values():
+                        if not ws.closed:
+                            await ws.send_str(json.dumps({"user_id": user_id, "content": content}))
+            except asyncio.TimeoutError:
+                pass
 
 
 async def handle_websocket(request):
@@ -39,27 +44,18 @@ async def handle_websocket(request):
     pubsub = redis_client.pubsub()
     await pubsub.subscribe(REDIS_CHANNEL)
 
-    global count
-    count += 1
-    user_id = str(count)
-    clients.append(ws)
+    user_id = request.match_info['id']
+    clients[user_id] = ws
 
-    await ws.send_str(user_id)
-    print("메세지 보내기 성공")
-
-    await redis_client.publish(REDIS_CHANNEL,json.dumps({"sender": user_id, "content": "Join"}))
-
-
-    receive_message = asyncio.create_task(handle_message(ws, user_id, redis_client,clients))
-    # send_message = asyncio.create_task(send_message_to_client(ws, user_id, pubsub))
-    #
-    # await asyncio.gather(receive_message, send_message)
+    receive_message = asyncio.create_task(handle_receive_message(ws, redis_client))
+    send_message = asyncio.create_task(handle_send_message(clients, pubsub))
+    await asyncio.gather(receive_message, send_message)
     await receive_message
     return ws
 
 async def main():
     app = web.Application()
-    app.add_routes([web.get("/ws", handle_websocket)])
+    app.add_routes([web.get("/ws/{id}", handle_websocket)])
     return app
 
 
