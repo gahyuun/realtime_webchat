@@ -8,7 +8,6 @@ REDIS_PORT = 6379
 REDIS_HOST = 'localhost'
 REDIS_CHANNEL = "chat"
 count = 0
-clients = {}
 
 
 async def handle_receive_message(ws, redis_client,id):
@@ -42,7 +41,6 @@ async def handle_websocket(request):
     await pubsub.subscribe(REDIS_CHANNEL)
 
     user_id = request.match_info['id']
-    clients[user_id] = ws
 
     receive_message = asyncio.create_task(handle_receive_message(ws, redis_client,user_id))
     send_message = asyncio.create_task(handle_send_message(pubsub, ws))
