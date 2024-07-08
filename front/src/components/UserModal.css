@@ -1,0 +1,19 @@
+.user_id_input_text {
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.user_id_input {
+  width: 100%;
+  height: 80%;
+}
+
+.user_id_button {
+  width: 40%;
+  height: 80%;
+  border: none;
+  border-radius: 16px;
+  background-color: #1d6ce0;
+  color: white;
+  cursor: pointer;
+}
