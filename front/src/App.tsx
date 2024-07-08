@@ -43,16 +43,18 @@ function App() {
   return (
     <div className="App">
       <UserModal handleChangeInput={handleChangeName} handleModalClose={handleWebSocket} />
-      {messages.map((message, index) => {
-        return (
-          <Message
-            key={index}
-            userId={message.userId}
-            color={message.userId === name ? 'yellow' : 'white'}
-            content={message.content}
-          />
-        );
-      })}
+      <div className="message_list">
+        {messages.map((message, index) => {
+          return (
+            <Message
+              key={index}
+              userId={message.userId}
+              color={message.userId === name ? 'yellow' : 'white'}
+              content={message.content}
+            />
+          );
+        })}
+      </div>
       <ChatInput handleSubmit={handleSubmit} />
     </div>
   );
