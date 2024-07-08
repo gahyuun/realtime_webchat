@@ -24,7 +24,7 @@ function App() {
 
   const handleModalClose = () => {
     setIsOpen(false);
-    ws.current = new WebSocket(`${SOCKET_PATH_URL}/${name}`);
+    ws.current = new WebSocket(`${SOCKET_PATH_URL}`);
 
     ws.current.onopen = () => {
       console.log('WebSocket connection opened');
@@ -34,7 +34,7 @@ function App() {
         const message = JSON.parse(event.data);
         setMessages((prevMessages) => [...prevMessages, { userId: message.user_id, content: message.content }]);
       } catch (error) {
-        console.error('Error parsing message:', error);
+        alert('네트워크 오류가 발생했습니다');
       }
     };
   };
