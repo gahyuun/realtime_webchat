@@ -47,7 +47,6 @@ async def handle_websocket(request):
     receive_message = asyncio.create_task(handle_receive_message(ws, redis_client,user_id))
     send_message = asyncio.create_task(handle_send_message(pubsub, ws))
     await asyncio.gather(receive_message, send_message)
-    await receive_message
     return ws
 
 
