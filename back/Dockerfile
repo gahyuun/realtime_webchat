@@ -11,7 +11,7 @@ ENV PATH /root/.local/bin:$PATH
 WORKDIR /app
 
 # Copy project files
-COPY pyproject.toml poetry.lock ./
+COPY pyproject.toml ./
 
 # Install dependencies
 RUN poetry install
