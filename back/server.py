@@ -10,7 +10,7 @@ REDIS_CHANNEL = "chat"
 count = 0
 
 
-async def handle_receive_message(ws, redis_client,id):
+async def handle_receive_message(ws, redis_client):
     async for msg in ws:
         if msg.type == aiohttp.WSMsgType.TEXT:
             data = json.loads(msg.data)
@@ -27,7 +27,11 @@ async def handle_send_message(pubsub, ws):
                 message_data = json.loads(message["data"].decode())
                 user_id = message_data["user_id"]
                 content = message_data["content"]
-                await ws.send_str(json.dumps({"user_id": user_id, "content": content}))
+                print(ws.closed)
+                if ws.closed:
+                    break
+                else:
+                    await ws.send_str(json.dumps({"user_id": user_id, "content": content}))
         except asyncio.TimeoutError:
             pass
 
@@ -40,9 +44,7 @@ async def handle_websocket(request):
     pubsub = redis_client.pubsub()
     await pubsub.subscribe(REDIS_CHANNEL)
 
-    user_id = request.match_info['id']
-
-    receive_message = asyncio.create_task(handle_receive_message(ws, redis_client,user_id))
+    receive_message = asyncio.create_task(handle_receive_message(ws, redis_client))
     send_message = asyncio.create_task(handle_send_message(pubsub, ws))
     await asyncio.gather(receive_message, send_message)
     return ws
@@ -50,7 +52,7 @@ async def handle_websocket(request):
 
 async def main():
     app = web.Application()
-    app.add_routes([web.get("/ws/{id}", handle_websocket)])
+    app.add_routes([web.get("/ws", handle_websocket)])
     return app
 
 
