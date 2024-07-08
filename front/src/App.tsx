@@ -2,12 +2,11 @@ import { useRef, useState } from 'react';
 import './App.css';
 import ChatInput from './components/ChatInput';
 import Message from './components/Message';
-import Modal from 'react-modal';
 import { SOCKET_PATH_URL } from './path';
+import UserModal from './components/UserModal';
 
 function App() {
   const ws = useRef<WebSocket | null>(null);
-  const [isOpen, setIsOpen] = useState(true);
   const [name, setName] = useState('');
   const [messages, setMessages] = useState<{ content: string; userId: string }[]>([]);
 
@@ -22,8 +21,7 @@ function App() {
     }
   };
 
-  const handleModalClose = () => {
-    setIsOpen(false);
+  const handleWebSocket = () => {
     ws.current = new WebSocket(`${SOCKET_PATH_URL}`);
 
     ws.current.onopen = () => {
@@ -44,31 +42,7 @@ function App() {
   };
   return (
     <div className="App">
-      <Modal
-        isOpen={isOpen}
-        shouldCloseOnOverlayClick={false}
-        ariaHideApp={false}
-        style={{
-          content: {
-            width: '32%',
-            height: '32%',
-            zIndex: '150',
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-          },
-          overlay: {
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          },
-        }}
-      >
-        <div>이름 입력</div>
-        <input onChange={handleChangeName} />
-        <button onClick={handleModalClose}>완료</button>
-      </Modal>
+      <UserModal handleChangeInput={handleChangeName} handleModalClose={handleWebSocket} />
       {messages.map((message, index) => {
         return (
           <Message
