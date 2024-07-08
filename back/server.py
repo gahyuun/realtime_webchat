@@ -27,7 +27,6 @@ async def handle_send_message(pubsub, ws):
                 message_data = json.loads(message["data"].decode())
                 user_id = message_data["user_id"]
                 content = message_data["content"]
-                print(ws.closed)
                 if ws.closed:
                     break
                 else:
