@@ -3,13 +3,10 @@ import aiohttp
 from aiohttp import web
 import redis.asyncio as redis
 import json
-import os
-
-
-REDIS_CHANNEL = "chat"
-count = 0
-REDIS_HOST = os.getenv('REDIS_HOST', 'localhost')
-REDIS_PORT = os.getenv('REDIS_PORT', 6379)
+from config import REDIS_CHANNEL
+from config import REDIS_HOST
+from config import REDIS_PORT
+from config import SERVER_PORT
 
 
 async def handle_receive_message(ws, redis_client):
@@ -58,4 +55,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    web.run_app(main(), host="0.0.0.0", port=8080)
+    web.run_app(main(), host="0.0.0.0", port=SERVER_PORT)
